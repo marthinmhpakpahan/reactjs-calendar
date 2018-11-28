@@ -5,6 +5,7 @@ import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import DateTitle from "./components/DateTitle";
 import DateContainer from "./components/DateContainer";
 import ButtonAction from "./components/ButtonAction";
+import Popup from "./components/Popup";
 
 class App extends Component {
   constructor() {
@@ -32,10 +33,16 @@ class App extends Component {
     this.state = {
       currentMonth: currentMonth,
       currentYear: currentYear,
-      currentMonthYear: currentMonthYear
+      currentMonthYear: currentMonthYear,
+      showPopup: false,
+      userNameLogin: "",
+      buttonLabel: "Login"
     };
 
     this.getCurrentMonthYear = this.getCurrentMonthYear.bind(this);
+    this.closePopup = this.closePopup.bind(this);
+    this.handleClickLogin = this.handleClickLogin.bind(this);
+    this.getAuthenticatedName = this.getAuthenticatedName.bind(this);
   }
 
   getCurrentMonthYear(month, year) {
@@ -56,6 +63,12 @@ class App extends Component {
     return months[month] + " " + year;
   }
 
+  closePopup() {
+    this.setState({
+      showPopup: false
+    });
+  }
+
   onClick = type => {
     var newState = {
       currentMonth: "",
@@ -69,7 +82,6 @@ class App extends Component {
         newState.currentMonth == 0
           ? this.state.currentYear + 1
           : this.state.currentYear;
-      console.log(newState.currentMonth);
 
       newState.currentMonthYear = this.getCurrentMonthYear(
         newState.currentMonth,
@@ -91,11 +103,32 @@ class App extends Component {
     this.setState(newState);
   };
 
+  handleClickLogin() {
+    this.setState({
+      showPopup: !this.state.showPopup
+    });
+  }
+
+  getAuthenticatedName(name) {
+    if (name != "") {
+      this.setState({
+        userNameLogin: name,
+        showPopup: !this.state.showPopup,
+        buttonLabel: "Logout"
+      });
+    }
+  }
+
   render() {
     return (
       <div className="container col-sm-4 col-md-7 col-lg-4 mt-5">
         <div className="card">
-          <DateTitle currentMonthYear={this.state.currentMonthYear} />
+          <DateTitle
+            buttonLabel={this.state.buttonLabel}
+            name={this.state.userNameLogin}
+            currentMonthYear={this.state.currentMonthYear}
+            handleClick={this.handleClickLogin}
+          />
           <DateContainer
             currentMonth={this.state.currentMonth}
             currentYear={this.state.currentYear}
@@ -108,6 +141,16 @@ class App extends Component {
             />
             <ButtonAction type="next" label="Next" onClick={this.onClick} />
           </div>
+          {this.state.showPopup ? (
+            <Popup
+              getAuthenticatedName={this.getAuthenticatedName}
+              handleClose={this.closePopup}
+              title="Login"
+              content="This is content"
+            />
+          ) : (
+            ""
+          )}
         </div>
       </div>
     );
